@@ -12,7 +12,9 @@ import {
   Switch,
   Textarea,
 } from '@mobiscroll/react';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState, useEffect } from 'react';
+import { jsPDF } from "jspdf";
+import html2canvas from 'html2canvas';
 
 setOptions({
   theme: 'ios',
@@ -326,8 +328,32 @@ function App() {
     [selectColor, setSelectedColor],
   );
 
+  const exportToPDF = useCallback(() => {
+    const pdfContent = document.getElementById('app-content');
+
+    html2canvas(pdfContent).then(canvas => {
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF();
+      pdf.addImage(imgData, 'PNG', 0, 0);
+      pdf.save("download.pdf");  
+    });
+  }, []);
+
+  useEffect(() => {
+    exportToPDF();
+  }, [exportToPDF]);
+  
+
   return (
     <div>
+      <div id="app-content" style={{ display: 'flex', justifyContent: 'left', alignItems: 'flex-start' }}>
+        {/* ...existing JSX code... */}
+        
+      </div>
+      <div id="app-content" style={{ display: 'flex', justifyContent: 'right', alignItems: 'flex-start' }}>
+        {/* ...existing JSX code... */}
+        <Button onClick={exportToPDF}>Export to PDF</Button>
+      </div>
       <Eventcalendar
         view={myView}
         data={myEvents}
